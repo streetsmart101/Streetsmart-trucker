@@ -710,7 +710,9 @@ const CDL_Q = {
     { q:"What is the correct stopping procedure at a stop sign?", opts:["Slow and proceed if clear","Stop completely at the stop line, check all directions, then proceed","Stop only if other traffic is present","Slow to 5 mph and yield"], ans:1, exp:"At a stop sign you must make a complete stop at the stop line or before the crosswalk. Check all directions for traffic and pedestrians before proceeding.", cat:"general" },
     { q:"When must you use a seatbelt in a CMV?", opts:["Only on highways","Only when carrying passengers","At all times when operating the vehicle","Only when required by employer policy"], ans:2, exp:"Federal regulations require CMV operators to wear seatbelts at all times when operating the vehicle. Passengers in the cab must also be buckled.", cat:"general" },
     { q:"How should you manage speed on a steep downgrade?", opts:["Use service brakes continuously","Coast in neutral to save fuel","Select proper gear before descent and use engine braking","Increase speed then brake at the bottom"], ans:2, exp:"Always select the proper lower gear before beginning a descent and use engine braking (exhaust brake/jake brake) to maintain safe speed. Service brakes on steep grades cause fade and potential brake failure.", cat:"general" },
-  ],
+  ,
+    { q:"What is the legal BAC limit for CDL drivers operating a commercial vehicle?", opts:[".08",".06",".04",".02"], ans:2, exp:"CDL drivers are held to a stricter .04 BAC limit, half the .08 standard for regular drivers." },
+    { q:"Refusing a DOT drug or alcohol test is treated as:", opts:["A warning","A minor infraction","A positive test result","An error"], ans:2, exp:"Refusing a DOT-required test is treated the same as testing positive - immediate removal from safety-sensitive functions." }],
   airbrakes:[
     { q:"What is the normal operating pressure range for air brakes?", opts:["50-75 psi","100-125 psi","150-175 psi","200-225 psi"], ans:1, exp:"Normal operating air pressure for truck air brakes is 100-125 psi. The governor cuts out air compressor at approximately 125 psi and cuts back in at approximately 100 psi.", cat:"airbrakes" },
     { q:"At what pressure does the low air warning device activate?", opts:["90 psi","75 psi","60 psi","45 psi"], ans:2, exp:"The low air pressure warning device must activate at 60 psi or higher. At this point you must immediately find a safe place to stop.", cat:"airbrakes" },
@@ -1148,7 +1150,7 @@ function EarlModal({ onClose, profile }) {
     setLoading(true);
     try {
       const history = newMessages.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2152,7 +2154,7 @@ function SimPlayScreen({ go, track, data:sim, setProgress }) {
     setEarlLoading(true);
     try {
       const optNow = sim.options[chosen];
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/chat", {
         method:"POST", headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
           model:"claude-sonnet-4-20250514", max_tokens:1000,
@@ -2681,7 +2683,7 @@ function NewsScreen({ go }) {
     setError(null);
     try {
       const cat = activeCategory === "All" ? "" : activeCategory;
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2722,7 +2724,7 @@ function NewsScreen({ go }) {
   const fetchDigest = async () => {
     setDigestLoading(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -3007,7 +3009,7 @@ function FeedbackScreen({ go, profile }) {
     if (!rating || !category) return;
     setSubmitting(true);
     try {
-      await fetch("https://api.anthropic.com/v1/messages", {
+      await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -3401,7 +3403,7 @@ function CommunityScreen({ go, profile, progress, setProgress }) {
     // Get Big Earl to answer
     setAiLoading(post.id);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:"You are Big Earl, a 30-year veteran truck driver and mentor. Answer this question from a fellow driver in 2-4 sentences. Be direct, practical, and real. Question: "+q}]})});
+      const res = await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:"You are Big Earl, a 30-year veteran truck driver and mentor. Answer this question from a fellow driver in 2-4 sentences. Be direct, practical, and real. Question: "+q}]})});
       const d = await res.json();
       const answer = (d.content||[]).map(b=>b.text||"").join("") || "Great question. Post this in the app feedback and I will get back to you.";
       setPosts(p=>p.map(post=>post.q===q?{...post,a:answer}:post));
